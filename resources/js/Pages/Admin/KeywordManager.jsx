@@ -121,12 +121,43 @@ export default function KeywordManager({ keywords }) {
                     <h1 className="text-3xl font-bold text-indigo-700">
                         Manajemen Keyword
                     </h1>
-                    <button
-                        onClick={openCreateModal}
-                        className="bg-gradient-to-r from-indigo-500 to-indigo-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-indigo-600 hover:to-indigo-800 transition-all"
-                    >
-                        Tambah Keyword
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={openCreateModal}
+                            className="bg-gradient-to-r from-indigo-500 to-indigo-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-indigo-600 hover:to-indigo-800 transition-all"
+                        >
+                            Tambah Keyword
+                        </button>
+                        <button
+                            onClick={() => {
+                                Swal.fire({
+                                    title: "Yakin mau logout?",
+                                    text: "Kamu akan keluar dari halaman admin.",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonText: "Ya, Logout",
+                                    cancelButtonText: "Batal",
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        Swal.fire({
+                                            title: "Logging out...",
+                                            didOpen: () => {
+                                                Swal.showLoading();
+                                                Inertia.post("/logout");
+                                            },
+                                            allowOutsideClick: false,
+                                            allowEscapeKey: false,
+                                            allowEnterKey: false,
+                                            showConfirmButton: false,
+                                        });
+                                    }
+                                });
+                            }}
+                            className="bg-gradient-to-r from-red-500 to-red-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-red-600 hover:to-red-800 transition-all"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
 
                 {keywords.length === 0 ? (
