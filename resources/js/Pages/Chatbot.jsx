@@ -94,12 +94,27 @@ export default function Chatbot() {
         axios
             .post("/feedbacks", feedbackData)
             .then((response) => {
-                alert("Feedback submitted successfully!");
-                setShowModal(false); // Close the modal after submission
+                // Show SweetAlert success message after successful feedback submission
+                Swal.fire({
+                    title: "Feedback Submitted!",
+                    text: "Thank you for your feedback.",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                }).then(() => {
+                    setShowModal(false); // Close the modal after submission
+                    setName(""); // Clear name input
+                    setFeedback(""); // Clear feedback input
+                });
             })
             .catch((error) => {
+                // Show SweetAlert error message if something goes wrong
+                Swal.fire({
+                    title: "Submission Failed",
+                    text: "Something went wrong while submitting your feedback.",
+                    icon: "error",
+                    confirmButtonText: "Try Again",
+                });
                 console.error("Error submitting feedback:", error);
-                alert("Failed to submit feedback.");
             });
     };
 
@@ -249,35 +264,30 @@ export default function Chatbot() {
                                 <input
                                     type="text"
                                     id="name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
-                                    placeholder="Masukkan nama"
-                                    disabled={isAnonymous}
+                                    value={isAnonymous ? "Anonim" : name} // Set "Anonim" jika checkbox dicentang
+                                    onChange={(e) =>
+                                        !isAnonymous && setName(e.target.value)
+                                    } // Jangan ubah jika anonym
+                                    className="mt-1 block w-full p-2 border rounded-md"
+                                    placeholder="Nama Anda"
+                                    disabled={isAnonymous} // Nonaktifkan input jika anonim
                                 />
-                            </div>
-
-                            <div className="mb-4 flex items-center">
-                                <input
-                                    type="checkbox"
-                                    id="anonymous"
-                                    checked={isAnonymous}
-                                    onChange={() => {
-                                        setIsAnonymous(!isAnonymous);
-                                        if (!isAnonymous) {
-                                            setName("Anonim"); // Automatically set to "Anonim" when checked
-                                        } else {
-                                            setName(""); // Allow input when unchecked
-                                        }
-                                    }}
-                                    className="mr-2"
-                                />
-                                <label
-                                    htmlFor="anonymous"
-                                    className="text-sm text-gray-700"
-                                >
-                                    Kirim sebagai Anonim
-                                </label>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="anonymous"
+                                        checked={isAnonymous}
+                                        onChange={(e) =>
+                                            setIsAnonymous(e.target.checked)
+                                        } // Mengubah status anonim
+                                    />
+                                    <label
+                                        htmlFor="anonymous"
+                                        className="text-sm"
+                                    >
+                                        Kirim sebagai Anonim
+                                    </label>
+                                </div>
                             </div>
 
                             <div className="mb-4">
@@ -285,7 +295,7 @@ export default function Chatbot() {
                                     htmlFor="feedback"
                                     className="block text-sm font-medium text-gray-700"
                                 >
-                                    Isi Feedback
+                                    Feedback
                                 </label>
                                 <textarea
                                     id="feedback"
@@ -293,23 +303,23 @@ export default function Chatbot() {
                                     onChange={(e) =>
                                         setFeedback(e.target.value)
                                     }
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
-                                    placeholder="Tulis feedback Anda"
+                                    className="mt-1 block w-full p-2 border rounded-md"
+                                    placeholder="Tulis feedback Anda..."
                                     required
-                                ></textarea>
+                                />
                             </div>
 
                             <div className="flex justify-end gap-2">
                                 <button
                                     type="button"
                                     onClick={handleModalClose}
-                                    className="px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded-full"
+                                    className="text-sm text-gray-700"
                                 >
-                                    Tutup
+                                    Batal
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 text-white bg-green-700 hover:bg-green-800 rounded-full"
+                                    className="px-4 py-2 text-sm text-white bg-green-700 hover:bg-green-800 rounded-md"
                                 >
                                     Kirim
                                 </button>
