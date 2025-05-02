@@ -7,6 +7,7 @@ export default function KeywordManager({ keywords }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
     const itemsPerPage = 5;
 
     const {
@@ -54,13 +55,20 @@ export default function KeywordManager({ keywords }) {
                     response: data.response,
                 },
                 {
-                    onSuccess: () => {
+                    onSuccess: (response) => {
                         Swal.fire(
                             "Berhasil!",
                             "Keyword berhasil diperbarui!",
                             "success"
                         );
                         closeModal();
+                    },
+                    onError: (error) => {
+                        Swal.fire(
+                            "Gagal!",
+                            "Terjadi kesalahan saat memperbarui keyword.",
+                            "error"
+                        );
                     },
                 }
             );
@@ -72,13 +80,20 @@ export default function KeywordManager({ keywords }) {
                     response: data.response,
                 },
                 {
-                    onSuccess: () => {
+                    onSuccess: (response) => {
                         Swal.fire(
                             "Berhasil!",
                             "Keyword berhasil ditambahkan!",
                             "success"
                         );
                         closeModal();
+                    },
+                    onError: (error) => {
+                        Swal.fire(
+                            "Gagal!",
+                            "Terjadi kesalahan saat menambahkan keyword.",
+                            "error"
+                        );
                     },
                 }
             );
@@ -102,17 +117,32 @@ export default function KeywordManager({ keywords }) {
                             "Keyword berhasil dihapus.",
                             "success"
                         ),
+                    onError: () =>
+                        Swal.fire(
+                            "Gagal!",
+                            "Terjadi kesalahan saat menghapus keyword.",
+                            "error"
+                        ),
                 });
             }
         });
     };
+
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
+    };
+
+    const filteredKeywords = keywords.filter((k) =>
+        k.keyword.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const paginate = (keywords, currentPage, itemsPerPage) => {
         const offset = (currentPage - 1) * itemsPerPage;
         return keywords.slice(offset, offset + itemsPerPage);
     };
 
-    const totalPages = Math.ceil(keywords.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredKeywords.length / itemsPerPage);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8">
@@ -130,43 +160,33 @@ export default function KeywordManager({ keywords }) {
                         </button>
                         <button
                             onClick={() => {
-                                Swal.fire({
-                                    title: "Yakin mau logout?",
-                                    text: "Kamu akan keluar dari halaman admin.",
-                                    icon: "warning",
-                                    showCancelButton: true,
-                                    confirmButtonText: "Ya, Logout",
-                                    cancelButtonText: "Batal",
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        Swal.fire({
-                                            title: "Logging out...",
-                                            didOpen: () => {
-                                                Swal.showLoading();
-                                                Inertia.post("/logout");
-                                            },
-                                            allowOutsideClick: false,
-                                            allowEscapeKey: false,
-                                            allowEnterKey: false,
-                                            showConfirmButton: false,
-                                        });
-                                    }
-                                });
+                                // Redirect directly to the dashboard without showing a confirmation dialog
+                                Inertia.get("/admin/dashboard");
                             }}
                             className="bg-gradient-to-r from-red-500 to-red-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-red-600 hover:to-red-800 transition-all"
                         >
-                            Logout
+                            Kembali
                         </button>
                     </div>
                 </div>
 
-                {keywords.length === 0 ? (
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        placeholder="Cari Keyword..."
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        className="w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                </div>
+
+                {filteredKeywords.length === 0 ? (
                     <p className="text-gray-500 text-lg">
-                        Belum ada keyword ditambahkan.
+                        Tidak ada keyword yang ditemukan.
                     </p>
                 ) : (
                     <div className="space-y-4">
-                        {paginate(keywords, currentPage, itemsPerPage).map(
+                        {paginate(filteredKeywords, currentPage, itemsPerPage).map(
                             (k) => (
                                 <div
                                     key={k.id}

@@ -29,6 +29,7 @@
         "lucide-react": "^0.488.0",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
+        "react-router-dom": "^6.30.0",
         "sweetalert2": "^11.18.0"
     }
 }
