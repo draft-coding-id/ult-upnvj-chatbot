@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useForm } from "@inertiajs/inertia-react";
 import Swal from "sweetalert2";
 import { Inertia } from "@inertiajs/inertia";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 export default function KeywordManager({ keywords }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,7 +57,7 @@ export default function KeywordManager({ keywords }) {
                     response: data.response,
                 },
                 {
-                    onSuccess: (response) => {
+                    onSuccess: () => {
                         Swal.fire(
                             "Berhasil!",
                             "Keyword berhasil diperbarui!",
@@ -63,7 +65,7 @@ export default function KeywordManager({ keywords }) {
                         );
                         closeModal();
                     },
-                    onError: (error) => {
+                    onError: () => {
                         Swal.fire(
                             "Gagal!",
                             "Terjadi kesalahan saat memperbarui keyword.",
@@ -80,7 +82,7 @@ export default function KeywordManager({ keywords }) {
                     response: data.response,
                 },
                 {
-                    onSuccess: (response) => {
+                    onSuccess: () => {
                         Swal.fire(
                             "Berhasil!",
                             "Keyword berhasil ditambahkan!",
@@ -88,7 +90,7 @@ export default function KeywordManager({ keywords }) {
                         );
                         closeModal();
                     },
-                    onError: (error) => {
+                    onError: () => {
                         Swal.fire(
                             "Gagal!",
                             "Terjadi kesalahan saat menambahkan keyword.",
@@ -130,7 +132,7 @@ export default function KeywordManager({ keywords }) {
 
     const handleSearch = (e) => {
         setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on search
+        setCurrentPage(1);
     };
 
     const filteredKeywords = keywords.filter((k) =>
@@ -154,31 +156,26 @@ export default function KeywordManager({ keywords }) {
                     <div className="flex gap-4">
                         <button
                             onClick={openCreateModal}
-                            className="bg-gradient-to-r from-indigo-500 to-indigo-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-indigo-600 hover:to-indigo-800 transition-all"
+                            className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow hover:bg-indigo-700 transition-all"
                         >
                             Tambah Keyword
                         </button>
                         <button
-                            onClick={() => {
-                                // Redirect directly to the dashboard without showing a confirmation dialog
-                                Inertia.get("/admin/dashboard");
-                            }}
-                            className="bg-gradient-to-r from-red-500 to-red-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-red-600 hover:to-red-800 transition-all"
+                            onClick={() => Inertia.get("/admin/dashboard")}
+                            className="bg-red-600 text-white px-6 py-3 rounded-lg shadow hover:bg-red-700 transition-all"
                         >
                             Kembali
                         </button>
                     </div>
                 </div>
 
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="Cari Keyword..."
-                        value={searchQuery}
-                        onChange={handleSearch}
-                        className="w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                </div>
+                <input
+                    type="text"
+                    placeholder="Cari Keyword..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm mb-4 focus:ring-indigo-500 focus:outline-none"
+                />
 
                 {filteredKeywords.length === 0 ? (
                     <p className="text-gray-500 text-lg">
@@ -186,65 +183,73 @@ export default function KeywordManager({ keywords }) {
                     </p>
                 ) : (
                     <div className="space-y-4">
-                        {paginate(filteredKeywords, currentPage, itemsPerPage).map(
-                            (k) => (
-                                <div
-                                    key={k.id}
-                                    className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex justify-between items-center shadow-lg hover:shadow-xl transition-all"
-                                >
-                                    <div>
-                                        <p className="font-semibold text-gray-800 text-xl">
-                                            {k.keyword}
-                                        </p>
-                                        <p className="text-gray-600 text-base">
-                                            {k.response}
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-4">
-                                        <button
-                                            onClick={() => openEditModal(k)}
-                                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(k.id)}
-                                            className="text-red-600 hover:text-red-800 text-sm font-medium transition"
-                                        >
-                                            Hapus
-                                        </button>
+                        {paginate(
+                            filteredKeywords,
+                            currentPage,
+                            itemsPerPage
+                        ).map((k) => (
+                            <div
+                                key={k.id}
+                                className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex justify-between items-start shadow-lg hover:shadow-xl transition-all"
+                            >
+                                <div className="w-full">
+                                    <p className="font-semibold text-gray-800 text-xl mb-2">
+                                        {k.keyword}
+                                    </p>
+                                    <div className="ql-snow">
+                                        <div
+                                            className="ql-editor text-gray-600 text-base"
+                                            dangerouslySetInnerHTML={{
+                                                __html: k.response,
+                                            }}
+                                        ></div>
                                     </div>
                                 </div>
-                            )
-                        )}
+                                <div className="flex gap-4 ml-4 mt-1 whitespace-nowrap">
+                                    <button
+                                        onClick={() => openEditModal(k)}
+                                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(k.id)}
+                                        className="text-red-600 hover:text-red-800 text-sm font-medium transition"
+                                    >
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
 
-                {/* Pagination Controls */}
-                <div className="flex justify-center items-center mt-6 space-x-4">
+                {/* Pagination */}
+                <div className="flex justify-center items-center mt-6 gap-4">
                     <button
-                        onClick={() => setCurrentPage(currentPage - 1)}
+                        onClick={() => setCurrentPage((prev) => prev - 1)}
                         disabled={currentPage === 1}
-                        className="px-6 py-3 bg-indigo-600 text-white rounded-lg disabled:opacity-50"
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg disabled:opacity-50"
                     >
                         Previous
                     </button>
-                    <span className="text-lg text-gray-600">
+                    <span className="text-gray-600 text-lg">
                         Page {currentPage} of {totalPages}
                     </span>
                     <button
-                        onClick={() => setCurrentPage(currentPage + 1)}
+                        onClick={() => setCurrentPage((prev) => prev + 1)}
                         disabled={currentPage === totalPages}
-                        className="px-6 py-3 bg-indigo-600 text-white rounded-lg disabled:opacity-50"
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg disabled:opacity-50"
                     >
                         Next
                     </button>
                 </div>
             </div>
 
+            {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl p-8 w-full max-w-lg shadow-lg animate__animated animate__fadeIn">
+                    <div className="bg-white rounded-xl p-8 w-full max-w-lg shadow-lg">
                         <h2 className="text-2xl font-semibold text-indigo-600 mb-6">
                             {editData ? "Edit Keyword" : "Tambah Keyword"}
                         </h2>
@@ -261,7 +266,7 @@ export default function KeywordManager({ keywords }) {
                                         errors.keyword
                                             ? "border-red-500"
                                             : "border-gray-300"
-                                    } rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none`}
+                                    } rounded-lg focus:ring-indigo-500 focus:outline-none`}
                                 />
                                 {errors.keyword && (
                                     <p className="text-red-500 text-sm mt-1">
@@ -271,18 +276,13 @@ export default function KeywordManager({ keywords }) {
                             </div>
 
                             <div>
-                                <input
-                                    type="text"
-                                    placeholder="Response"
+                                <ReactQuill
+                                    theme="snow"
                                     value={data.response}
-                                    onChange={(e) =>
-                                        setData("response", e.target.value)
+                                    onChange={(value) =>
+                                        setData("response", value)
                                     }
-                                    className={`w-full px-5 py-3 border ${
-                                        errors.response
-                                            ? "border-red-500"
-                                            : "border-gray-300"
-                                    } rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none`}
+                                    className="bg-white"
                                 />
                                 {errors.response && (
                                     <p className="text-red-500 text-sm mt-1">
@@ -295,14 +295,14 @@ export default function KeywordManager({ keywords }) {
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400 transition-all"
+                                    className="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-lg shadow-md hover:from-indigo-700 hover:to-indigo-800 disabled:opacity-50 transition-all"
+                                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
                                 >
                                     {processing
                                         ? "Menyimpan..."

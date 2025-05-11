@@ -60,6 +60,15 @@ Route::group([], function () {
         return app(KeywordController::class)->store($request);
     });
 
+    Route::put('/admin/keywords/{id}', function (Request $request, $id) {
+        if (!$request->session()->get('is_admin')) {
+            return redirect()->route('login');
+        }
+
+        return app(KeywordController::class)->update($request, $id);
+    });
+
+
     // Rute untuk feedback
     Route::get('/admin/feedback', function (Request $request) {
         if (!$request->session()->get('is_admin')) {

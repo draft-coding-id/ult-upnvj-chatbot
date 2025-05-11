@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Copy, Trash, MessageSquare, Send } from "lucide-react"; // Import Lucide React icons
 import Swal from "sweetalert2"; // Import SweetAlert2
+import "react-quill/dist/quill.snow.css";
+import Quill from "quill";
 
 export default function Chatbot() {
     const [message, setMessage] = useState("");
@@ -182,10 +184,27 @@ export default function Chatbot() {
                             </div>
 
                             {/* Bot Message */}
+                            {/* {msg.bot && (
+                                <div className="flex justify-start">
+                                    <div
+                                        className="bg-green-200 text-black p-3 rounded-2xl text-sm max-w-md"
+                                        dangerouslySetInnerHTML={{
+                                            __html: msg.bot,
+                                        }} // Render HTML here
+                                    />
+                                </div>
+                            )} */}
+
+                            {/* Bot Message */}
                             {msg.bot && (
                                 <div className="flex justify-start">
-                                    <div className="bg-green-200 text-black p-3 rounded-2xl text-sm max-w-md">
-                                        {msg.bot}
+                                    <div className="ql-snow">
+                                        <div
+                                            className="ql-editor bg-green-200 text-black p-3 rounded-2xl text-sm max-w-md"
+                                            dangerouslySetInnerHTML={{
+                                                __html: msg.bot, // Render HTML here
+                                            }}
+                                        ></div>
                                     </div>
                                 </div>
                             )}
